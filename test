@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: #000;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Car Game Section -->
+    <div id="carGame">
+        <h1>Car Game</h1>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <!-- Auto Clicker Game Section -->
+    <div id="autoClickerGame" class="hidden">
+        <h1>Auto Clicker Game</h1>
+        <button id="clickButton">Click me!</button>
+        <p>Clicks: <span id="clickCount">0</span></p>
+        <button id="autoClicker">Buy Auto Clicker (10 clicks)</button>
+    </div>
+
+    <script>
+        // Toggle between games
+        function showGame(gameId) {
+            document.getElementById('carGame').classList.add('hidden');
+            document.getElementById('autoClickerGame').classList.add('hidden');
+            document.getElementById(gameId).classList.remove('hidden');
+        }
+
+        // Uncomment the game you want to show
+        // showGame('carGame');  // Show Car Game
+        showGame('autoClickerGame'); // Show Auto Clicker Game
+
+        // --- Car Game Logic ---
+        const carCanvas = document.getElementById('gameCanvas');
+        const carCtx = carCanvas.getContext('2d');
+
+        const car = {
+            x: carCanvas.width / 2,
+            y: carCanvas.height - 60,
+            width: 50,
+            height: 30,
+            speed: 5
+        };
+
+        function drawCar() {
+            carCtx.fillStyle = 'blue';
+            carCtx.fillRect(car.x, car.y, car.width, car.height);
+        }
+
+        function updateCar() {
+            carCtx.clearRect(0, 0, carCanvas.width, carCanvas.height);
+            drawCar();
+            requestAnimationFrame(updateCar);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') car.x -= car.speed;
+            if (e.key === 'ArrowRight') car.x += car.speed;
+            if (e.key === 'ArrowUp') car.y -= car.speed;
+            if (e.key === 'ArrowDown') car.y += car.speed;
+        });
+
+        // --- Auto Clicker Game Logic ---
+        let clicks = 0;
+        let autoClickerCost = 10;
+        let autoClickerInterval = null;
+
+        const clickButton = document.getElementById('clickButton');
+        const clickCount = document.getElementById('clickCount');
+        const autoClickerButton = document.getElementById('autoClicker');
+
+        clickButton.addEventListener('click', () => {
+            clicks++;
+            updateClickCount();
+        });
+
+        autoClickerButton.addEventListener('click', () => {
+            if (clicks >= autoClickerCost) {
+                clicks -= autoClickerCost;
+                updateClickCount();
+                startAutoClicker();
+            }
+        });
+
+        function updateClickCount() {
+            clickCount.textContent = clicks;
+        }
+
+        function startAutoClicker() {
+            autoClickerInterval = setInterval(() => {
+                clicks++;
+                updateClickCount();
+            }, 1000); // Auto-click every second
+        }
+
+        // Start car game if selected
+        if (document.getElementById('gameCanvas')) {
+            updateCar();
+        }
+    </script>
+
+</body>
+</html>
