@@ -21,7 +21,7 @@
         h1 {
             margin-top: 0;
         }
-        #clickerUI, #shopUI, #leaderboardUI {
+        #loginUI, #clickerUI, #shopUI, #leaderboardUI {
             margin-bottom: 20px;
             padding: 20px;
             background: #fff;
@@ -45,28 +45,43 @@
         #leaderboard p {
             margin: 0;
         }
+        #loginUI input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+            width: 200px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Auto Clicker Game</h1>
-
-    <div id="clickerUI">
-        <button id="clickButton">Click me!</button>
-        <p>Clicks: <span id="clickCount">0</span></p>
-        <p>Time: <span id="timer">00:00</span></p>
+    <!-- Login Section -->
+    <div id="loginUI">
+        <h1>Welcome to the Auto Clicker Game</h1>
+        <p>Please enter your username:</p>
+        <input type="text" id="username" placeholder="Username">
+        <button id="loginButton">Login</button>
     </div>
 
-    <div id="shopUI">
-        <h2>Shop</h2>
-        <button id="basicAutoClicker">Buy Basic Auto Clicker (10 clicks)</button>
-        <button id="largeAutoClicker">Buy Large Auto Clicker (500 clicks)</button>
-    </div>
+    <!-- Game Section -->
+    <div id="gameUI" class="hidden">
+        <div id="clickerUI">
+            <button id="clickButton">Click me!</button>
+            <p>Clicks: <span id="clickCount">0</span></p>
+            <p>Time: <span id="timer">00:00</span></p>
+        </div>
 
-    <div id="leaderboardUI">
-        <h2>Leaderboard</h2>
-        <div id="leaderboard">
-            <!-- Leaderboard entries will be injected here -->
+        <div id="shopUI">
+            <h2>Shop</h2>
+            <button id="basicAutoClicker">Buy Basic Auto Clicker (10 clicks)</button>
+            <button id="largeAutoClicker">Buy Large Auto Clicker (500 clicks)</button>
+        </div>
+
+        <div id="leaderboardUI">
+            <h2>Leaderboard</h2>
+            <div id="leaderboard">
+                <!-- Leaderboard entries will be injected here -->
+            </div>
         </div>
     </div>
 
@@ -78,14 +93,31 @@
         let autoClickerIntervalBasic = null;
         let autoClickerIntervalLarge = null;
         let startTime = Date.now();
+        let username = '';
         let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 
+        const loginUI = document.getElementById('loginUI');
+        const gameUI = document.getElementById('gameUI');
         const clickButton = document.getElementById('clickButton');
         const clickCount = document.getElementById('clickCount');
         const timerElement = document.getElementById('timer');
         const basicAutoClickerButton = document.getElementById('basicAutoClicker');
         const largeAutoClickerButton = document.getElementById('largeAutoClicker');
         const leaderboardElement = document.getElementById('leaderboard');
+        const loginButton = document.getElementById('loginButton');
+        const usernameInput = document.getElementById('username');
+
+        loginButton.addEventListener('click', () => {
+            const inputUsername = usernameInput.value.trim();
+            if (inputUsername) {
+                username = inputUsername;
+                loginUI.classList.add('hidden');
+                gameUI.classList.remove('hidden');
+                updateLeaderboard(); // Show leaderboard with updated scores
+            } else {
+                alert('Please enter a username.');
+            }
+        });
 
         clickButton.addEventListener('click', () => {
             clicks++;
@@ -139,17 +171,19 @@
 
         function updateLeaderboard() {
             // Add the current score to the leaderboard
-            leaderboard.push({ name: 'Player', clicks });
-            leaderboard.sort((a, b) => b.clicks - a.clicks);
-            if (leaderboard.length > 5) {
-                leaderboard.pop(); // Keep top 5 scores
-            }
-            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            if (username) {
+                leaderboard.push({ name: username, clicks });
+                leaderboard.sort((a, b) => b.clicks - a.clicks);
+                if (leaderboard.length > 5) {
+                    leaderboard.pop(); // Keep top 5 scores
+                }
+                localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
 
-            // Display the leaderboard
-            leaderboardElement.innerHTML = leaderboard.map((entry, index) =>
-                `<p>${index + 1}. ${entry.name} - ${entry.clicks} clicks</p>`
-            ).join('');
+                // Display the leaderboard
+                leaderboardElement.innerHTML = leaderboard.map((entry, index) =>
+                    `<p>${index + 1}. ${entry.name} - ${entry.clicks} clicks</p>`
+                ).join('');
+            }
         }
 
         // Update the timer every second
