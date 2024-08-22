@@ -21,15 +21,12 @@
         h1 {
             margin-top: 0;
         }
-        #clickerUI, #leaderboardUI {
+        #clickerUI, #shopUI, #leaderboardUI {
             margin-bottom: 20px;
             padding: 20px;
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        #clickerUI p, #leaderboardUI p {
-            margin: 10px 0;
         }
         #timer {
             font-size: 24px;
@@ -58,7 +55,12 @@
         <button id="clickButton">Click me!</button>
         <p>Clicks: <span id="clickCount">0</span></p>
         <p>Time: <span id="timer">00:00</span></p>
-        <button id="autoClicker">Buy Auto Clicker (10 clicks)</button>
+    </div>
+
+    <div id="shopUI">
+        <h2>Shop</h2>
+        <button id="basicAutoClicker">Buy Basic Auto Clicker (10 clicks)</button>
+        <button id="largeAutoClicker">Buy Large Auto Clicker (500 clicks)</button>
     </div>
 
     <div id="leaderboardUI">
@@ -71,15 +73,18 @@
     <script>
         // Initialize variables
         let clicks = 0;
-        let autoClickerCost = 10;
-        let autoClickerInterval = null;
+        let autoClickerCostBasic = 10;
+        let autoClickerCostLarge = 500;
+        let autoClickerIntervalBasic = null;
+        let autoClickerIntervalLarge = null;
         let startTime = Date.now();
         let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 
         const clickButton = document.getElementById('clickButton');
         const clickCount = document.getElementById('clickCount');
         const timerElement = document.getElementById('timer');
-        const autoClickerButton = document.getElementById('autoClicker');
+        const basicAutoClickerButton = document.getElementById('basicAutoClicker');
+        const largeAutoClickerButton = document.getElementById('largeAutoClicker');
         const leaderboardElement = document.getElementById('leaderboard');
 
         clickButton.addEventListener('click', () => {
@@ -87,11 +92,19 @@
             updateClickCount();
         });
 
-        autoClickerButton.addEventListener('click', () => {
-            if (clicks >= autoClickerCost) {
-                clicks -= autoClickerCost;
+        basicAutoClickerButton.addEventListener('click', () => {
+            if (clicks >= autoClickerCostBasic) {
+                clicks -= autoClickerCostBasic;
                 updateClickCount();
-                startAutoClicker();
+                startBasicAutoClicker();
+            }
+        });
+
+        largeAutoClickerButton.addEventListener('click', () => {
+            if (clicks >= autoClickerCostLarge) {
+                clicks -= autoClickerCostLarge;
+                updateClickCount();
+                startLargeAutoClicker();
             }
         });
 
@@ -99,11 +112,22 @@
             clickCount.textContent = clicks;
         }
 
-        function startAutoClicker() {
-            autoClickerInterval = setInterval(() => {
-                clicks++;
-                updateClickCount();
-            }, 1000); // Auto-click every second
+        function startBasicAutoClicker() {
+            if (!autoClickerIntervalBasic) {
+                autoClickerIntervalBasic = setInterval(() => {
+                    clicks++;
+                    updateClickCount();
+                }, 1000); // Basic auto-clicker every second
+            }
+        }
+
+        function startLargeAutoClicker() {
+            if (!autoClickerIntervalLarge) {
+                autoClickerIntervalLarge = setInterval(() => {
+                    clicks += 5; // Larger auto-clicker adds more clicks
+                    updateClickCount();
+                }, 500); // Large auto-clicker every 0.5 seconds
+            }
         }
 
         function updateTimer() {
