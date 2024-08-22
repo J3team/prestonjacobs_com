@@ -3,98 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Games</title>
+    <title>Auto Clicker Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
             text-align: center;
-        }
-        canvas {
-            display: block;
-            margin: 0 auto;
-            background: #000;
+            background: #f0f0f0;
         }
         button {
             padding: 10px 20px;
             font-size: 16px;
             margin: 5px;
+            cursor: pointer;
         }
         h1 {
             margin-top: 0;
         }
-        .hidden {
-            display: none;
+        #clickerUI, #leaderboardUI {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #clickerUI p, #leaderboardUI p {
+            margin: 10px 0;
+        }
+        #timer {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #clickCount {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #leaderboard {
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            padding: 10px;
+        }
+        #leaderboard p {
+            margin: 0;
         }
     </style>
 </head>
 <body>
 
-    <!-- Car Game Section -->
-    <div id="carGame">
-        <h1>Car Game</h1>
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-    </div>
+    <h1>Auto Clicker Game</h1>
 
-    <!-- Auto Clicker Game Section -->
-    <div id="autoClickerGame" class="hidden">
-        <h1>Auto Clicker Game</h1>
+    <div id="clickerUI">
         <button id="clickButton">Click me!</button>
         <p>Clicks: <span id="clickCount">0</span></p>
+        <p>Time: <span id="timer">00:00</span></p>
         <button id="autoClicker">Buy Auto Clicker (10 clicks)</button>
     </div>
 
+    <div id="leaderboardUI">
+        <h2>Leaderboard</h2>
+        <div id="leaderboard">
+            <!-- Leaderboard entries will be injected here -->
+        </div>
+    </div>
+
     <script>
-        // Toggle between games
-        function showGame(gameId) {
-            document.getElementById('carGame').classList.add('hidden');
-            document.getElementById('autoClickerGame').classList.add('hidden');
-            document.getElementById(gameId).classList.remove('hidden');
-        }
-
-        // Uncomment the game you want to show
-        // showGame('carGame');  // Show Car Game
-        showGame('autoClickerGame'); // Show Auto Clicker Game
-
-        // --- Car Game Logic ---
-        const carCanvas = document.getElementById('gameCanvas');
-        const carCtx = carCanvas.getContext('2d');
-
-        const car = {
-            x: carCanvas.width / 2,
-            y: carCanvas.height - 60,
-            width: 50,
-            height: 30,
-            speed: 5
-        };
-
-        function drawCar() {
-            carCtx.fillStyle = 'blue';
-            carCtx.fillRect(car.x, car.y, car.width, car.height);
-        }
-
-        function updateCar() {
-            carCtx.clearRect(0, 0, carCanvas.width, carCanvas.height);
-            drawCar();
-            requestAnimationFrame(updateCar);
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') car.x -= car.speed;
-            if (e.key === 'ArrowRight') car.x += car.speed;
-            if (e.key === 'ArrowUp') car.y -= car.speed;
-            if (e.key === 'ArrowDown') car.y += car.speed;
-        });
-
-        // --- Auto Clicker Game Logic ---
+        // Initialize variables
         let clicks = 0;
         let autoClickerCost = 10;
         let autoClickerInterval = null;
+        let startTime = Date.now();
+        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 
         const clickButton = document.getElementById('clickButton');
         const clickCount = document.getElementById('clickCount');
+        const timerElement = document.getElementById('timer');
         const autoClickerButton = document.getElementById('autoClicker');
+        const leaderboardElement = document.getElementById('leaderboard');
 
         clickButton.addEventListener('click', () => {
             clicks++;
@@ -120,12 +106,34 @@
             }, 1000); // Auto-click every second
         }
 
-        // Start car game if selected
-        if (document.getElementById('gameCanvas')) {
-            updateCar();
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+            const seconds = String(elapsed % 60).padStart(2, '0');
+            timerElement.textContent = `${minutes}:${seconds}`;
         }
+
+        function updateLeaderboard() {
+            // Add the current score to the leaderboard
+            leaderboard.push({ name: 'Player', clicks });
+            leaderboard.sort((a, b) => b.clicks - a.clicks);
+            if (leaderboard.length > 5) {
+                leaderboard.pop(); // Keep top 5 scores
+            }
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+
+            // Display the leaderboard
+            leaderboardElement.innerHTML = leaderboard.map((entry, index) =>
+                `<p>${index + 1}. ${entry.name} - ${entry.clicks} clicks</p>`
+            ).join('');
+        }
+
+        // Update the timer every second
+        setInterval(updateTimer, 1000);
+
+        // Update leaderboard when page loads
+        updateLeaderboard();
     </script>
 
 </body>
 </html>
-
