@@ -51,6 +51,9 @@
             margin: 5px;
             width: 200px;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -147,7 +150,7 @@
         function startBasicAutoClicker() {
             if (!autoClickerIntervalBasic) {
                 autoClickerIntervalBasic = setInterval(() => {
-                    clicks++;
+                    clicks += 100; // Generates 100 clicks per second
                     updateClickCount();
                 }, 1000); // Basic auto-clicker every second
             }
