@@ -251,7 +251,16 @@
 
             // Notify that settings have been saved
             alert('Settings have been updated.');
+
+            // Update the UI elements based on new settings
+            updateGameUI();
         });
+
+        function updateGameUI() {
+            // Update the shop buttons with new prices
+            basicAutoClickerButton.textContent = `Buy Basic Auto Clicker (${autoClickerCostBasic} clicks)`;
+            largeAutoClickerButton.textContent = `Buy Large Auto Clicker (${autoClickerCostLarge} clicks)`;
+        }
 
         // Update the timer every second
         setInterval(updateTimer, 1000);
