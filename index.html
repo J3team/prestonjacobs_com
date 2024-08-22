@@ -21,7 +21,7 @@
         h1 {
             margin-top: 0;
         }
-        #loginUI, #clickerUI, #shopUI, #leaderboardUI {
+        #loginUI, #clickerUI, #shopUI, #leaderboardUI, #adminUI {
             margin-bottom: 20px;
             padding: 20px;
             background: #fff;
@@ -45,7 +45,7 @@
         #leaderboard p {
             margin: 0;
         }
-        #loginUI input {
+        #loginUI input, #adminUI input {
             padding: 10px;
             font-size: 16px;
             margin: 5px;
@@ -88,16 +88,39 @@
         </div>
     </div>
 
+    <!-- Admin Section -->
+    <div id="adminUI" class="hidden">
+        <h1>Admin Panel</h1>
+        <p>Enter Admin Password:</p>
+        <input type="password" id="adminPassword" placeholder="Password">
+        <button id="adminLoginButton">Login</button>
+        <div id="adminControls" class="hidden">
+            <h2>Admin Controls</h2>
+            <p>Basic Auto Clicker Cost:</p>
+            <input type="number" id="basicCost" value="10">
+            <p>Large Auto Clicker Cost:</p>
+            <input type="number" id="largeCost" value="500">
+            <p>Basic Auto Clicker Rate (clicks per second):</p>
+            <input type="number" id="basicRate" value="100">
+            <p>Large Auto Clicker Rate (clicks per second):</p>
+            <input type="number" id="largeRate" value="5">
+            <button id="saveSettings">Save Settings</button>
+        </div>
+    </div>
+
     <script>
         // Initialize variables
         let clicks = 0;
         let autoClickerCostBasic = 10;
         let autoClickerCostLarge = 500;
+        let autoClickerRateBasic = 100; // Basic auto clicker rate
+        let autoClickerRateLarge = 5;   // Large auto clicker rate
         let autoClickerIntervalBasic = null;
         let autoClickerIntervalLarge = null;
         let startTime = Date.now();
         let username = '';
         let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+        const adminPassword = '3912'; // Admin password updated to 3912
 
         const loginUI = document.getElementById('loginUI');
         const gameUI = document.getElementById('gameUI');
@@ -109,6 +132,15 @@
         const leaderboardElement = document.getElementById('leaderboard');
         const loginButton = document.getElementById('loginButton');
         const usernameInput = document.getElementById('username');
+        const adminUI = document.getElementById('adminUI');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const adminLoginButton = document.getElementById('adminLoginButton');
+        const adminControls = document.getElementById('adminControls');
+        const basicCostInput = document.getElementById('basicCost');
+        const largeCostInput = document.getElementById('largeCost');
+        const basicRateInput = document.getElementById('basicRate');
+        const largeRateInput = document.getElementById('largeRate');
+        const saveSettingsButton = document.getElementById('saveSettings');
 
         loginButton.addEventListener('click', () => {
             const inputUsername = usernameInput.value.trim();
@@ -150,7 +182,7 @@
         function startBasicAutoClicker() {
             if (!autoClickerIntervalBasic) {
                 autoClickerIntervalBasic = setInterval(() => {
-                    clicks += 100; // Generates 100 clicks per second
+                    clicks += autoClickerRateBasic;
                     updateClickCount();
                 }, 1000); // Basic auto-clicker every second
             }
@@ -159,7 +191,7 @@
         function startLargeAutoClicker() {
             if (!autoClickerIntervalLarge) {
                 autoClickerIntervalLarge = setInterval(() => {
-                    clicks += 5; // Larger auto-clicker adds more clicks
+                    clicks += autoClickerRateLarge; // Larger auto-clicker adds more clicks
                     updateClickCount();
                 }, 500); // Large auto-clicker every 0.5 seconds
             }
@@ -188,6 +220,26 @@
                 ).join('');
             }
         }
+
+        adminLoginButton.addEventListener('click', () => {
+            const inputPassword = adminPasswordInput.value.trim();
+            if (inputPassword === adminPassword) {
+                adminUI.classList.add('hidden');
+                adminControls.classList.remove('hidden');
+            } else {
+                alert('Incorrect password.');
+            }
+        });
+
+        saveSettingsButton.addEventListener('click', () => {
+            autoClickerCostBasic = Number(basicCostInput.value);
+            autoClickerCostLarge = Number(largeCostInput.value);
+            autoClickerRateBasic = Number(basicRateInput.value);
+            autoClickerRateLarge = Number(largeRateInput.value);
+
+            // Notify that settings have been saved
+            alert('Settings have been updated.');
+        });
 
         // Update the timer every second
         setInterval(updateTimer, 1000);
